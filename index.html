@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Zone</title>
+    
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('https://i.ibb.co/Mx2WPmXV/x.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            margin: 20px auto;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+        }
+
+        input {
+            width: 80%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: none;
+        }
+
+        button {
+            padding: 12px 25px;
+            background-color: #e50914;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .movie-list {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .movie-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background-color: #555;
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+
+        .player-container {
+            margin-top: 20px;
+            display: none;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Cinema Zone</h1>
+        <p>സിനിമയുടെ പേരും ലിങ്കും നൽകി ആഡ് ചെയ്യൂ!</p>
+        
+        <input type="text" id="movieName" placeholder="സിനിമയുടെ പേര്...">
+        <input type="text" id="movieUrl" placeholder="Fileeetobot ലിങ്ക് ഇവിടെ പേസ്റ്റ് ചെയ്യൂ...">
+        <br>
+        <button onclick="addMovie()">ADD MOVIE</button>
+
+        <div class="player-container" id="playerContainer">
+            <video id="player" playsinline controls>
+                <source id="videoSource" src="" type="video/mp4" />
+            </video>
+        </div>
+
+        <div class="movie-list" id="movieList">
+            <h3>നിന്റെ സിനിമകൾ:</h3>
+            </div>
+    </div>
+
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <script>
+        const player = new Plyr('#player');
+        let movies = [];
+
+        function addMovie() {
+            const name = document.getElementById("movieName").value;
+            const url = document.getElementById("movieUrl").value;
+
+            if (name && url) {
+                const movie = { id: Date.now(), name, url };
+                movies.push(movie);
+                displayMovies();
+                document.getElementById("movieName").value = "";
+                document.getElementById("movieUrl").value = "";
+            }
+        }
+
+        function displayMovies() {
+            const list = document.getElementById("movieList");
+            list.innerHTML = "<h3>നിന്റെ സിനിമകൾ:</h3>";
+            
+            movies.forEach(movie => {
+                const item = document.createElement("div");
+                item.className = "movie-item";
+                item.innerHTML = `
+                    <span onclick="playNow('${movie.url}')" style="cursor:pointer">🎬 ${movie.name}</span>
+                    <button class="delete-btn" onclick="deleteMovie(${movie.id})">Delete</button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function playNow(url) {
+            document.getElementById("playerContainer").style.display = "block";
+            player.source = {
+                type: 'video',
+                sources: [{ src: url, type: 'video/mp4' }],
+            };
+            player.play();
+            window.scrollTo(0, 0);
+        }
+
+        // --- നീ പറഞ്ഞ ആ മാറ്റം ഇവിടെയാണ്! ---
+        function deleteMovie(id) {
+            const pass = prompt("ഡിലീറ്റ് ചെയ്യാൻ അഡ്മിൻ പാസ്‌വേഡ് നൽകുക:");
+            
+            // പാസ്‌വേഡ് 1234 മാറ്റി 'hishammonpass' ആക്കി
+            if (pass === "hishammonpass") {
+                movies = movies.filter(m => m.id !== id);
+                displayMovies();
+                alert("സിനിമ ഡിലീറ്റ് ചെയ്തു!");
+            } else {
+                alert("തെറ്റായ പാസ്‌വേഡ്! നിനക്ക് ഇതിന് അനുവാദമില്ല.");
+            }
+        }
+    </script>
+</body>
+  </html>
