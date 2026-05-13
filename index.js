@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 7860;
 
 // MongoDB Connection
 const mongoURI = "mongodb+srv://hishammon:hishammon@cluster0.2g7bqyf.mongodb.net/AnimeDB?appName=Cluster0";
-mongoose.connect(mongoURI).then(() => console.log("✅ AnimeZone Live")).catch(err => console.log(err));
+mongoose.connect(mongoURI).then(() => console.log("✅ BZ BIXO Live")).catch(err => console.log(err));
 
 const Anime = mongoose.model('Anime', { seriesName: String, episodeTitle: String, pic: String, url: String });
 app.use(express.json());
@@ -38,8 +38,8 @@ app.get('/', async (req, res) => {
     </head>
     <body>
         <header>
-            <div style="color:var(--gold); font-size: 1.4em; font-weight:bold;">ANIMEZONE 🏴‍☠️</div>
-            <input type="text" id="srch" class="search-box" placeholder="Search anime..." onkeyup="search()">
+            <div style="color:var(--gold); font-size: 1.4em; font-weight:bold;">BZ BIXO WEBSITE 🏴‍☠️</div>
+            <input type="text" id="srch" class="search-box" placeholder="Search content...">
         </header>
         <div class="grid" id="g"></div>
         <div id="playerOverlay">
@@ -51,11 +51,22 @@ app.get('/', async (req, res) => {
         <script>
             let d = ${JSON.stringify(allData)};
             let player;
-            document.addEventListener('DOMContentLoaded', () => { player = videojs('v-player'); });
+            
+            // പാസ്‌വേഡ് ഇവിടെ BZBIXOPASS ആക്കി മാറ്റി
+            const ADMIN_PASS = "BZBIXOPASS";
+
+            document.addEventListener('DOMContentLoaded', () => { 
+                player = videojs('v-player'); 
+                document.getElementById('srch').onkeyup = search;
+                load(d);
+            });
+
             function load(list) {
                 document.getElementById('g').innerHTML = list.map(i => \`
                     <div class="card">
-                        <button class="del-btn" onclick="delItem('\${i._id}')">×</button>
+                        <div style="position:absolute; top:5px; right:5px;">
+                            <button onclick="delItem('\${i._id}')" style="background:rgba(255,0,0,0.6); color:white; border:none; border-radius:50%; width:25px; height:25px; cursor:pointer;">×</button>
+                        </div>
                         <div onclick="playVideo('\${i.url}')">
                             <div class="pic-box"><img src="\${i.pic}"></div>
                             <div class="info"><b>\${i.seriesName}</b><br><small>\${i.episodeTitle}</small></div>
@@ -63,26 +74,45 @@ app.get('/', async (req, res) => {
                     </div>
                 \`).join('');
             }
+
             function playVideo(url) {
                 document.getElementById('playerOverlay').style.display = 'flex';
                 player.src({ type: 'video/mp4', src: url });
                 player.play();
             }
+
             function closeP() { player.pause(); document.getElementById('playerOverlay').style.display = 'none'; }
+
             function search() {
                 const val = document.getElementById('srch').value.toLowerCase();
                 load(d.filter(i => i.seriesName.toLowerCase().includes(val)));
             }
+
             function add() {
-                if(prompt("Password?") !== "hishammonpass") return;
+                if(prompt("Password?") !== ADMIN_PASS) {
+                    alert("Wrong Password!");
+                    return;
+                }
                 const s = prompt("Name:"), e = prompt("Episode:"), p = prompt("Poster:"), u = prompt("Video URL:");
-                if(s && u) { fetch('/add', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({seriesName:s, episodeTitle:e, pic:p, url:u}) }).then(()=>location.reload()); }
+                if(s && u) { 
+                    fetch('/add', { 
+                        method:'POST', 
+                        headers:{'Content-Type':'application/json'}, 
+                        body:JSON.stringify({seriesName:s, episodeTitle:e, pic:p, url:u}) 
+                    }).then(()=>location.reload()); 
+                }
             }
+
             async function delItem(id) {
-                if(prompt("Password?") !== "hishammonpass") return;
-                if(confirm("Delete?")) { await fetch('/delete/' + id, { method: 'DELETE' }); location.reload(); }
+                if(prompt("Password?") !== ADMIN_PASS) {
+                    alert("Wrong Password!");
+                    return;
+                }
+                if(confirm("Delete?")) { 
+                    await fetch('/delete/' + id, { method: 'DELETE' }); 
+                    location.reload(); 
+                }
             }
-            load(d);
         </script>
     </body>
     </html>
